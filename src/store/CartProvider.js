@@ -13,9 +13,29 @@ const cartReducer = (state, action) => {
   // we have to return a new state snapshot
 
   if (action.TYPE === 'ADD') {
-    const updatedItems = state.items.concat(action.item);
     const updatedTotalAmount =
       state.totalAmount + action.item.price * action.item.amount;
+
+    const existingCartItemIndex = state.items.findIndex(
+      (item) => item.id === action.item.id
+    ); // built-in function in JS which finds the index of an item in an array
+
+    const existingCartItem = state.items[existingCartItemIndex]; // will only work if we already have an item =? otherwise it will return null;
+
+    let updatedItems;
+
+    if (existingCartItem) {
+      const updatedItem = {
+        ...existingCartItem,
+        amount: existingCartItem.amount + action.item.amount, // the amount which was added by this action
+      }; //object destructuring
+
+      updatedItems = [...state.items];
+      updatedItems[existingCartItemIndex] = updatedItem; //overwrite the element on the found index;
+    } else {
+      //the item is added for the first time
+      updatedItems = state.items.concat(action.item);
+    }
 
     return { items: updatedItems, totalAmount: updatedTotalAmount };
     // concat unlike push returns a new Array
